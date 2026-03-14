@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
+import 'screens/auth/register_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +56,6 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Login correcto — aquí navegaremos al home
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = switch (e.code) {
@@ -68,6 +68,13 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  void _goToRegister() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+    );
   }
 
   @override
@@ -124,8 +131,8 @@ class _LoginPageState extends State<LoginPage> {
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
                     ),
-                    onPressed: () => setState(
-                        () => _obscurePassword = !_obscurePassword),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -180,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const Text('¿No tienes cuenta?'),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: _goToRegister,
                     child: const Text('Regístrate'),
                   ),
                 ],
