@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "950457302440",
+    "project_id": "app-tfg-tr",
+    "storage_bucket": "app-tfg-tr.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:950457302440:android:cb60710a2c496ded92319d",
+        "android_client_info": {
+          "package_name": "com.irene.tfg.app_trans"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGSb1wCYO4QeQZJk76F2Ct0oMvpMJDUsk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

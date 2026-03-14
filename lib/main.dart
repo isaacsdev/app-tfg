@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const AppTrans());
 }
 
@@ -34,6 +41,34 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      // Login correcto — aquí navegaremos al home
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = switch (e.code) {
+          'user-not-found' => 'No existe ninguna cuenta con ese correo.',
+          'wrong-password' => 'Contraseña incorrecta.',
+          'invalid-email' => 'El correo no es válido.',
+          _ => 'Error al iniciar sesión. Inténtalo de nuevo.',
+        };
+      });
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +81,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Logo / título
-              const Icon(
-                Icons.favorite,
-                size: 64,
-                color: Color(0xFF6B48FF),
-              ),
+              const Icon(Icons.favorite, size: 64, color: Color(0xFF6B48FF)),
               const SizedBox(height: 16),
               const Text(
                 'AppTrans',
@@ -65,14 +95,9 @@ class _LoginPageState extends State<LoginPage> {
               const Text(
                 'Seguimiento de tu THS',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 48),
-
-              // Campo email
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -87,8 +112,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Campo contraseña
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
@@ -101,11 +124,8 @@ class _LoginPageState extends State<LoginPage> {
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
+                    onPressed: () => setState(
+                        () => _obscurePassword = !_obscurePassword),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -115,8 +135,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 8),
-
-              // Recuperar contraseña
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red, fontSize: 13),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -125,10 +152,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Botón iniciar sesión
               ElevatedButton(
-                onPressed: () {},
+                onPressed: _isLoading ? null : _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6B48FF),
                   foregroundColor: Colors.white,
@@ -137,14 +162,19 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Iniciar sesión',
-                  style: TextStyle(fontSize: 16),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('Iniciar sesión',
+                        style: TextStyle(fontSize: 16)),
               ),
               const SizedBox(height: 16),
-
-              // Registro
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
