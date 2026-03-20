@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'analytics_screen.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({super.key});
@@ -211,8 +212,7 @@ class _Card extends StatelessWidget {
 class _AnalyticsTab extends StatelessWidget {
   const _AnalyticsTab();
   @override
-  Widget build(BuildContext context) => const Center(
-      child: Text('Analíticas', style: TextStyle(fontSize: 20)));
+  Widget build(BuildContext context) => const AnalyticsScreen();
 }
 
 class _ChatTab extends StatelessWidget {
