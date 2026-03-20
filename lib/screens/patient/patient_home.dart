@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({super.key});
@@ -57,13 +59,39 @@ class _PatientHomeState extends State<PatientHome> {
 }
 
 // ── TAB INICIO ──────────────────────────────────────────────
-class _HomeTab extends StatelessWidget {
+class _HomeTab extends StatefulWidget {
   const _HomeTab();
+
+  @override
+  State<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<_HomeTab> {
+  String _nombre = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNombre();
+  }
+
+  Future<void> _loadNombre() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final doc = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .get();
+    if (doc.exists && mounted) {
+      setState(() {
+        _nombre = doc.data()?['nombre'] ?? '';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    final email = user?.email ?? 'usuario';
+    final displayName = _nombre.isNotEmpty ? _nombre : user?.email ?? 'usuario';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -71,13 +99,12 @@ class _HomeTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Saludo
             Text(
               'Hola 👋',
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             Text(
-              email,
+              displayName,
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -85,8 +112,6 @@ class _HomeTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Tarjeta plan hormonal
             _Card(
               icon: Icons.medication_outlined,
               title: 'Plan hormonal',
@@ -94,8 +119,6 @@ class _HomeTab extends StatelessWidget {
               color: const Color(0xFF6B48FF),
             ),
             const SizedBox(height: 16),
-
-            // Próxima dosis
             _Card(
               icon: Icons.alarm_outlined,
               title: 'Próxima dosis',
@@ -103,8 +126,6 @@ class _HomeTab extends StatelessWidget {
               color: Colors.orange,
             ),
             const SizedBox(height: 16),
-
-            // Check-in semanal
             _Card(
               icon: Icons.check_circle_outline,
               title: 'Check-in semanal',
@@ -112,8 +133,6 @@ class _HomeTab extends StatelessWidget {
               color: Colors.green,
             ),
             const SizedBox(height: 16),
-
-            // Alertas
             _Card(
               icon: Icons.notifications_outlined,
               title: 'Alertas',
@@ -206,6 +225,5 @@ class _ChatTab extends StatelessWidget {
 class _ProfileTab extends StatelessWidget {
   const _ProfileTab();
   @override
-  Widget build(BuildContext context) =>
-      const Center(child: Text('Perfil', style: TextStyle(fontSize: 20)));
+  Widget build(BuildContext context) => const ProfileScreen();
 }
