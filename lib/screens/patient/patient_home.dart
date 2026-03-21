@@ -4,6 +4,7 @@ import 'profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'analytics_screen.dart';
 import 'chat_screen.dart';
+import 'checkin_screen.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({super.key});
@@ -128,11 +129,17 @@ class _HomeTabState extends State<_HomeTab> {
               color: Colors.orange,
             ),
             const SizedBox(height: 16),
-            _Card(
-              icon: Icons.check_circle_outline,
-              title: 'Check-in semanal',
-              subtitle: 'Pendiente de completar',
-              color: Colors.green,
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CheckinScreen()),
+              ),
+              child: _Card(
+                icon: Icons.check_circle_outline,
+                title: 'Check-in semanal',
+                subtitle: 'Pendiente de completar',
+                color: Colors.green,
+              ),
             ),
             const SizedBox(height: 16),
             _Card(
