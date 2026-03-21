@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'analytics_screen.dart';
+import 'chat_screen.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({super.key});
@@ -218,8 +219,7 @@ class _AnalyticsTab extends StatelessWidget {
 class _ChatTab extends StatelessWidget {
   const _ChatTab();
   @override
-  Widget build(BuildContext context) =>
-      const Center(child: Text('Chat IA', style: TextStyle(fontSize: 20)));
+  Widget build(BuildContext context) => const ChatScreen();
 }
 
 class _ProfileTab extends StatelessWidget {
