@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/patient/patient_home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'screens/medic/medic_home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +14,8 @@ void main() async {
   );
   runApp(const AppTrans());
 }
+
+
 
 class AppTrans extends StatelessWidget {
   const AppTrans({super.key});
@@ -27,7 +31,58 @@ class AppTrans extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const LoginPage(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF6B48FF),
+                ),
+              ),
+            );
+          }
+          if (snapshot.hasData) {
+            return const _RoleRouter();
+          }
+          return const LoginPage();
+        },
+      ),
+    );
+  }
+}
+
+class _RoleRouter extends StatelessWidget {
+  const _RoleRouter();
+
+  @override
+  Widget build(BuildContext context) {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF6B48FF),
+              ),
+            ),
+          );
+        }
+        final rol = snapshot.data?.data() != null
+            ? (snapshot.data!.data() as Map<String, dynamic>)['rol'] ?? 'paciente'
+            : 'paciente';
+        print('ROL DETECTADO: $rol');
+        if (rol == 'sanitario') {
+          return const MedicHome();
+        }
+        return const PatientHome();
+      },
     );
   }
 }
@@ -57,12 +112,6 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const PatientHome()),
-        );
-      }
     } on FirebaseAuthException catch (e) {
       setState(() {
         _errorMessage = switch (e.code) {
