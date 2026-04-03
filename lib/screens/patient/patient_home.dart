@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'analytics_screen.dart';
 import 'chat_screen.dart';
 import 'checkin_screen.dart';
+import 'reminders_screen.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({super.key});
@@ -46,8 +47,7 @@ class _PatientHomeState extends State<PatientHome> {
           ),
           NavigationDestination(
             icon: Icon(Icons.chat_bubble_outline),
-            selectedIcon:
-                Icon(Icons.chat_bubble, color: Color(0xFF6B48FF)),
+            selectedIcon: Icon(Icons.chat_bubble, color: Color(0xFF6B48FF)),
             label: 'Chat IA',
           ),
           NavigationDestination(
@@ -71,11 +71,14 @@ class _HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<_HomeTab> {
   String _nombre = '';
+  String _proximoRecordatorio = '';
+  String _proximaHora = '';
 
   @override
   void initState() {
     super.initState();
     _loadNombre();
+    _loadProximoRecordatorio();
   }
 
   Future<void> _loadNombre() async {
@@ -91,10 +94,51 @@ class _HomeTabState extends State<_HomeTab> {
     }
   }
 
+  Future<void> _loadProximoRecordatorio() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .collection('recordatorios')
+        .where('activo', isEqualTo: true)
+        .get();
+
+    if (snapshot.docs.isNotEmpty && mounted) {
+      final total = snapshot.docs.length;
+
+      // Encontrar el más próximo por hora
+      final ahora =
+          '${TimeOfDay.now().hour.toString().padLeft(2, '0')}:${TimeOfDay.now().minute.toString().padLeft(2, '0')}';
+
+      String proximaHora = '';
+      for (final doc in snapshot.docs) {
+        final hora = doc.data()['hora'] ?? '';
+        if (hora.isNotEmpty) {
+          if (proximaHora.isEmpty || hora.compareTo(ahora) > 0) {
+            proximaHora = hora;
+          }
+        }
+      }
+
+      setState(() {
+        _proximoRecordatorio =
+            '$total recordatorio${total > 1 ? 's' : ''} activo${total > 1 ? 's' : ''}';
+        _proximaHora =
+            proximaHora.isNotEmpty ? 'próximo a las $proximaHora' : '';
+      });
+    } else if (mounted) {
+      setState(() {
+        _proximoRecordatorio = '';
+        _proximaHora = '';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    final displayName = _nombre.isNotEmpty ? _nombre : user?.email ?? 'usuario';
+    final displayName =
+        _nombre.isNotEmpty ? _nombre : user?.email ?? 'usuario';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -122,11 +166,20 @@ class _HomeTabState extends State<_HomeTab> {
               color: const Color(0xFF6B48FF),
             ),
             const SizedBox(height: 16),
-            _Card(
-              icon: Icons.alarm_outlined,
-              title: 'Próxima dosis',
-              subtitle: 'No hay recordatorios activos',
-              color: Colors.orange,
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const RemindersScreen()),
+              ),
+              child: _Card(
+                icon: Icons.alarm_outlined,
+                title: 'Próxima dosis',
+                subtitle: _proximoRecordatorio.isNotEmpty
+                  ? '$_proximoRecordatorio · $_proximaHora'
+                  : 'No hay recordatorios activos',
+                color: Colors.orange,
+              ),
             ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -204,8 +257,8 @@ class _Card extends StatelessWidget {
                         fontWeight: FontWeight.bold, fontSize: 15)),
                 const SizedBox(height: 4),
                 Text(subtitle,
-                    style:
-                        TextStyle(color: Colors.grey[600], fontSize: 13)),
+                    style: TextStyle(
+                        color: Colors.grey[600], fontSize: 13)),
               ],
             ),
           ),
@@ -216,7 +269,7 @@ class _Card extends StatelessWidget {
   }
 }
 
-// ── TABS VACÍOS (por ahora) ──────────────────────────────────
+// ── TABS ─────────────────────────────────────────────────────
 class _AnalyticsTab extends StatelessWidget {
   const _AnalyticsTab();
   @override
