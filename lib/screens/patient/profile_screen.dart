@@ -89,6 +89,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (picked != null) setState(() => _fechaNacimiento = picked);
   }
 
+  Future<void> _signOut() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Seguro que quieres cerrar sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cerrar sesión',
+                style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await FirebaseAuth.instance.signOut();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -164,8 +188,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 12),
-
-              // Fecha de nacimiento
               GestureDetector(
                 onTap: _pickDate,
                 child: Container(
@@ -178,8 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.cake_outlined,
-                          color: Colors.grey[600]),
+                      Icon(Icons.cake_outlined, color: Colors.grey[600]),
                       const SizedBox(width: 12),
                       Text(
                         _fechaNacimiento != null
@@ -196,7 +217,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
               _SectionTitle('Información clínica'),
               const SizedBox(height: 12),
@@ -222,7 +242,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 maxLines: 3,
                 hint: 'Otros medicamentos que tomas habitualmente',
               ),
-
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
@@ -240,6 +259,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(fontSize: 16)),
                 ),
               ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _signOut,
+                  icon: const Icon(Icons.logout, color: Colors.red),
+                  label: const Text('Cerrar sesión',
+                      style: TextStyle(color: Colors.red)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.red),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
