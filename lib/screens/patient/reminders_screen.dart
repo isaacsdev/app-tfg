@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'adherence_screen.dart';
 
 class RemindersScreen extends StatelessWidget {
   const RemindersScreen({super.key});
@@ -22,6 +23,14 @@ class RemindersScreen extends StatelessWidget {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart, color: Color(0xFF6B48FF)),
+            tooltip: 'Ver adherencia',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AdherenceScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.add, color: Color(0xFF6B48FF)),
             onPressed: () => _showAddReminderDialog(context, uid),
