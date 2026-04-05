@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'hormone_plan_screen.dart';
 
 class MedicHome extends StatefulWidget {
   const MedicHome({super.key});
@@ -203,6 +204,24 @@ class PatientDetailScreen extends StatelessWidget {
               Tab(text: 'Alertas'),
             ],
           ),
+          actions: [
+            TextButton.icon(
+              icon: const Icon(Icons.medication, color: Color(0xFF2ECC71)),
+              label: const Text(
+                'Plan hormonal',
+                style: TextStyle(color: Color(0xFF2ECC71)),
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => HormonePlanScreen(
+                    uid: uid,
+                    nombrePaciente: nombre,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         body: TabBarView(
           children: [

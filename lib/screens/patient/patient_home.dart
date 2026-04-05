@@ -74,12 +74,14 @@ class _HomeTabState extends State<_HomeTab> {
   String _nombre = '';
   String _proximoRecordatorio = '';
   String _proximaHora = '';
+  String _planHormonal = '';
 
   @override
   void initState() {
     super.initState();
     _loadNombre();
     _loadProximoRecordatorio();
+    _loadPlanHormonal();
   }
 
   Future<void> _loadNombre() async {
@@ -133,6 +135,24 @@ class _HomeTabState extends State<_HomeTab> {
     }
   }
 
+  Future<void> _loadPlanHormonal() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final doc = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .collection('plan_hormonal')
+        .doc('actual')
+        .get();
+
+    if (doc.exists && mounted) {
+      final data = doc.data()!;
+      setState(() {
+        _planHormonal =
+            '${data['medicamento']} · ${data['dosis']} · ${data['via']}';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -142,9 +162,7 @@ class _HomeTabState extends State<_HomeTab> {
     return SafeArea(
       child: Column(
         children: [
-          // Banner de respuesta del sanitario
           _AlertResponseBanner(uid: user!.uid),
-
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -167,7 +185,9 @@ class _HomeTabState extends State<_HomeTab> {
                   _Card(
                     icon: Icons.medication_outlined,
                     title: 'Plan hormonal',
-                    subtitle: 'Sin pauta asignada aún',
+                    subtitle: _planHormonal.isNotEmpty
+                        ? _planHormonal
+                        : 'Sin pauta asignada aún',
                     color: const Color(0xFF6B48FF),
                   ),
                   const SizedBox(height: 16),
@@ -302,8 +322,7 @@ class _AlertResponseBanner extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 respuesta,
-                style:
-                    const TextStyle(fontSize: 13, color: Colors.black87),
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
               ),
             ],
           ),
