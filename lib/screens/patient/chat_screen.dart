@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const _apiKey = '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';
+const _apiKey = ' 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';
 
 const _systemPrompt = '''
 Eres un asistente de salud especializado en terapia hormonal sustitutiva (THS) para personas transgénero. 

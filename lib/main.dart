@@ -6,6 +6,7 @@ import 'screens/auth/register_screen.dart';
 import 'screens/patient/patient_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screens/medic/medic_home.dart';
+import 'screens/auth/consent_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,19 +69,25 @@ class _RoleRouter extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF6B48FF),
-              ),
+              child: CircularProgressIndicator(color: Color(0xFF6B48FF)),
             ),
           );
         }
-        final rol = snapshot.data?.data() != null
-            ? (snapshot.data!.data() as Map<String, dynamic>)['rol'] ?? 'paciente'
-            : 'paciente';
-        print('ROL DETECTADO: $rol');
+
+        final data = snapshot.data?.data() as Map<String, dynamic>?;
+        final rol = data?['rol'] ?? 'paciente';
+        final consentimiento = data?['consentimiento'] as Map<String, dynamic>?;
+        final consentimientoAceptado = consentimiento?['aceptado'] ?? false;
+
+        // Si es paciente y no ha aceptado el consentimiento
+        if (rol == 'paciente' && !consentimientoAceptado) {
+          return const ConsentScreen();
+        }
+
         if (rol == 'sanitario') {
           return const MedicHome();
         }
+
         return const PatientHome();
       },
     );
