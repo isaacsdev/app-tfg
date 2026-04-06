@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'hormone_plan_screen.dart';
+import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 class MedicHome extends StatefulWidget {
   const MedicHome({super.key});
@@ -240,6 +242,13 @@ class _PatientAnalytics extends StatelessWidget {
   final String uid;
   const _PatientAnalytics({required this.uid});
 
+  Future<void> _descargarPDF(String base64, String nombre) async {
+    final uri = Uri.parse(
+      'data:application/pdf;base64,$base64',
+    );
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -275,7 +284,8 @@ class _PatientAnalytics extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -300,7 +310,9 @@ class _PatientAnalytics extends StatelessWidget {
                             child: Text(
                               validada ? 'Validada' : 'Pendiente',
                               style: TextStyle(
-                                  color: validada ? Colors.green : Colors.orange,
+                                  color: validada
+                                      ? Colors.green
+                                      : Colors.orange,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -316,7 +328,8 @@ class _PatientAnalytics extends StatelessWidget {
                                     .doc(doc.id)
                                     .update({'validada': true});
                                 if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(
                                     const SnackBar(
                                       content: Text('Analítica validada'),
                                       backgroundColor: Color(0xFF2ECC71),
@@ -328,9 +341,10 @@ class _PatientAnalytics extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color:
-                                      const Color(0xFF2ECC71).withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20),
+                                  color: const Color(0xFF2ECC71)
+                                      .withOpacity(0.1),
+                                  borderRadius:
+                                      BorderRadius.circular(20),
                                 ),
                                 child: const Text('Validar',
                                     style: TextStyle(
@@ -361,6 +375,39 @@ class _PatientAnalytics extends StatelessWidget {
                       );
                     }).toList(),
                   ),
+                  if (data['pdf_nombre'] != null &&
+                      data['pdf_base64'] != null) ...[
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () => _descargarPDF(
+                          data['pdf_base64'], data['pdf_nombre']),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xFF2ECC71).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                              color: const Color(0xFF2ECC71)
+                                  .withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.download,
+                                color: Color(0xFF2ECC71), size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              data['pdf_nombre'],
+                              style: const TextStyle(
+                                  color: Color(0xFF2ECC71), fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );
@@ -404,14 +451,16 @@ class _PatientCheckins extends StatelessWidget {
             final fecha = data['fecha'] != null
                 ? (data['fecha'] as Timestamp).toDate()
                 : DateTime.now();
-            final valores = data['valores'] as Map<String, dynamic>? ?? {};
+            final valores =
+                data['valores'] as Map<String, dynamic>? ?? {};
             final notas = data['notas'] ?? '';
 
             return Container(
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -430,20 +479,22 @@ class _PatientCheckins extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2ECC71).withOpacity(0.1),
+                          color:
+                              const Color(0xFF2ECC71).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text('${e.key}: $valor/5',
                             style: const TextStyle(
-                                fontSize: 12, color: Color(0xFF2ECC71))),
+                                fontSize: 12,
+                                color: Color(0xFF2ECC71))),
                       );
                     }).toList(),
                   ),
                   if (notas.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Text('Notas: $notas',
-                        style:
-                            TextStyle(color: Colors.grey[600], fontSize: 13)),
+                        style: TextStyle(
+                            color: Colors.grey[600], fontSize: 13)),
                   ],
                 ],
               ),
@@ -466,7 +517,8 @@ class _PatientAlerts extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Editar respuesta',
             style: TextStyle(color: Color(0xFF2ECC71))),
         content: TextField(
@@ -474,8 +526,8 @@ class _PatientAlerts extends StatelessWidget {
           maxLines: 4,
           decoration: InputDecoration(
             hintText: 'Escribe tus instrucciones para el paciente...',
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12)),
             filled: true,
             fillColor: const Color(0xFFF0FFF4),
           ),
@@ -492,7 +544,8 @@ class _PatientAlerts extends StatelessWidget {
                   .doc(uid)
                   .collection('alertas')
                   .doc(docId)
-                  .update({'respuesta_sanitario': controller.text.trim()});
+                  .update(
+                      {'respuesta_sanitario': controller.text.trim()});
               if (context.mounted) Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
@@ -568,7 +621,9 @@ class _PatientAlerts extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
-                              color: vistaPor ? Colors.grey : Colors.black87,
+                              color: vistaPor
+                                  ? Colors.grey
+                                  : Colors.black87,
                             ),
                           ),
                         ],
@@ -591,20 +646,22 @@ class _PatientAlerts extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     '${fecha.day}/${fecha.month}/${fecha.year} a las ${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                    style:
+                        TextStyle(color: Colors.grey[500], fontSize: 12),
                   ),
-
-                  // Respuesta existente
                   if (data['respuesta_sanitario'] != null &&
-                      (data['respuesta_sanitario'] as String).isNotEmpty) ...[
+                      (data['respuesta_sanitario'] as String)
+                          .isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2ECC71).withOpacity(0.08),
+                        color:
+                            const Color(0xFF2ECC71).withOpacity(0.08),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                            color: const Color(0xFF2ECC71).withOpacity(0.3)),
+                            color: const Color(0xFF2ECC71)
+                                .withOpacity(0.3)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -615,13 +672,13 @@ class _PatientAlerts extends StatelessWidget {
                           Expanded(
                             child: Text(data['respuesta_sanitario'],
                                 style: const TextStyle(
-                                    fontSize: 13, color: Color(0xFF2ECC71))),
+                                    fontSize: 13,
+                                    color: Color(0xFF2ECC71))),
                           ),
                         ],
                       ),
                     ),
                   ],
-
                   const SizedBox(height: 12),
                   if (!vistaPor)
                     _AlertResponseForm(uid: uid, docId: doc.id)
@@ -770,7 +827,8 @@ class _MedicProfileTab extends StatelessWidget {
                 style: TextStyle(color: Colors.grey[600])),
             const SizedBox(height: 32),
             ElevatedButton.icon(
-              onPressed: () async => await FirebaseAuth.instance.signOut(),
+              onPressed: () async =>
+                  await FirebaseAuth.instance.signOut(),
               icon: const Icon(Icons.logout),
               label: const Text('Cerrar sesión'),
               style: ElevatedButton.styleFrom(

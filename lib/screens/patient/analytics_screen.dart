@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'charts_screen.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:convert';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
@@ -146,6 +148,7 @@ class _AnalyticCard extends StatelessWidget {
         : DateTime.now();
     final valores = data['valores'] as Map<String, dynamic>? ?? {};
     final validada = data['validada'] ?? false;
+    final pdfNombre = data['pdf_nombre'];
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -176,8 +179,8 @@ class _AnalyticCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: validada
                       ? Colors.green.withOpacity(0.1)
@@ -206,7 +209,8 @@ class _AnalyticCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: valores.entries.map((e) {
-                final enRango = _isInRange(e.key, double.tryParse(e.value.toString()) ?? 0);
+                final enRango = _isInRange(
+                    e.key, double.tryParse(e.value.toString()) ?? 0);
                 return Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10, vertical: 6),
@@ -245,6 +249,30 @@ class _AnalyticCard extends StatelessWidget {
                 );
               }).toList(),
             ),
+          if (pdfNombre != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6B48FF).withOpacity(0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: const Color(0xFF6B48FF).withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.picture_as_pdf,
+                      color: Color(0xFF6B48FF), size: 16),
+                  const SizedBox(width: 6),
+                  Text(pdfNombre,
+                      style: const TextStyle(
+                          color: Color(0xFF6B48FF), fontSize: 12)),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -321,29 +349,46 @@ class _AddAnalyticFormState extends State<_AddAnalyticForm> {
   };
 
   bool _isSaving = false;
-  DateTime _fecha = DateTime.now();
+  String? _pdfBase64;
+  String? _pdfNombre;
+
+  Future<void> _pickPDF() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      withData: true,
+    );
+    if (result != null && result.files.isNotEmpty) {
+      final file = result.files.first;
+      if (file.bytes != null) {
+        setState(() {
+          _pdfBase64 = base64Encode(file.bytes!);
+          _pdfNombre = file.name;
+        });
+      }
+    }
+  }
 
   Future<void> _save() async {
     setState(() => _isSaving = true);
-
     final valores = <String, dynamic>{};
     _controllers.forEach((key, ctrl) {
       if (ctrl.text.isNotEmpty) {
         valores[key] = ctrl.text.trim();
       }
     });
-
     await FirebaseFirestore.instance
         .collection('usuarios')
         .doc(widget.uid)
         .collection('analiticas')
         .add({
-      'fecha': Timestamp.fromDate(_fecha),
+      'fecha': Timestamp.now(),
       'valores': valores,
       'validada': false,
       'origen': 'paciente',
+      if (_pdfBase64 != null) 'pdf_base64': _pdfBase64,
+      if (_pdfNombre != null) 'pdf_nombre': _pdfNombre,
     });
-
     setState(() => _isSaving = false);
     if (mounted) Navigator.pop(context);
   }
@@ -394,6 +439,60 @@ class _AddAnalyticFormState extends State<_AddAnalyticForm> {
                   ),
                 )),
             const SizedBox(height: 8),
+            GestureDetector(
+              onTap: _pickPDF,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: _pdfBase64 != null
+                      ? const Color(0xFF6B48FF).withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: _pdfBase64 != null
+                        ? const Color(0xFF6B48FF)
+                        : Colors.grey.shade300,
+                    width: _pdfBase64 != null ? 2 : 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _pdfBase64 != null
+                          ? Icons.picture_as_pdf
+                          : Icons.upload_file_outlined,
+                      color: _pdfBase64 != null
+                          ? const Color(0xFF6B48FF)
+                          : Colors.grey[600],
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _pdfBase64 != null
+                            ? _pdfNombre ?? 'PDF adjunto'
+                            : 'Adjuntar informe PDF (opcional)',
+                        style: TextStyle(
+                          color: _pdfBase64 != null
+                              ? const Color(0xFF6B48FF)
+                              : Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    if (_pdfBase64 != null)
+                      GestureDetector(
+                        onTap: () => setState(() {
+                          _pdfBase64 = null;
+                          _pdfNombre = null;
+                        }),
+                        child: Icon(Icons.close,
+                            color: Colors.grey[400], size: 18),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
