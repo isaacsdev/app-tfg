@@ -7,12 +7,15 @@ import 'screens/patient/patient_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screens/medic/medic_home.dart';
 import 'screens/auth/consent_screen.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService().init();
+  await NotificationService().requestPermissions();
   runApp(const AppTrans());
 }
 

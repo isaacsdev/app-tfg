@@ -13,8 +13,8 @@ class _CheckinScreenState extends State<CheckinScreen> {
   final _notasController = TextEditingController();
   bool _isSaving = false;
   bool _yaCompletado = false;
+  Map<String, dynamic>? _ultimoCheckin;
 
-  // Valores de los sliders (1-5)
   final Map<String, double> _valores = {
     'bienestar': 3,
     'energia': 3,
@@ -23,7 +23,6 @@ class _CheckinScreenState extends State<CheckinScreen> {
     'irritabilidad': 1,
   };
 
-  // Síntomas booleanos
   final Map<String, bool> _sintomas = {
     'sangrado_intermenstrual': false,
     'dolor_cabeza': false,
@@ -50,10 +49,15 @@ class _CheckinScreenState extends State<CheckinScreen> {
         .collection('checkins')
         .where('fecha',
             isGreaterThanOrEqualTo: Timestamp.fromDate(inicioSemanaDate))
+        .orderBy('fecha', descending: true)
+        .limit(1)
         .get();
 
     if (query.docs.isNotEmpty && mounted) {
-      setState(() => _yaCompletado = true);
+      setState(() {
+        _yaCompletado = true;
+        _ultimoCheckin = query.docs.first.data();
+      });
     }
   }
 
@@ -75,6 +79,12 @@ class _CheckinScreenState extends State<CheckinScreen> {
     setState(() {
       _isSaving = false;
       _yaCompletado = true;
+      _ultimoCheckin = {
+        'valores': Map.from(_valores),
+        'sintomas': Map.from(_sintomas),
+        'notas': _notasController.text.trim(),
+        'fecha': Timestamp.now(),
+      };
     });
 
     if (mounted) {
@@ -84,7 +94,6 @@ class _CheckinScreenState extends State<CheckinScreen> {
           backgroundColor: Color(0xFF6B48FF),
         ),
       );
-      Navigator.pop(context);
     }
   }
 
@@ -103,45 +112,270 @@ class _CheckinScreenState extends State<CheckinScreen> {
           ),
         ),
       ),
-      body: _yaCompletado ? _CompletadoView() : _FormView(
-        valores: _valores,
-        sintomas: _sintomas,
-        notasController: _notasController,
-        isSaving: _isSaving,
-        onSave: _save,
-        onValorChanged: (key, value) =>
-            setState(() => _valores[key] = value),
-        onSintomaChanged: (key, value) =>
-            setState(() => _sintomas[key] = value),
-      ),
+      body: _yaCompletado
+          ? _CompletadoView(checkin: _ultimoCheckin)
+          : _FormView(
+              valores: _valores,
+              sintomas: _sintomas,
+              notasController: _notasController,
+              isSaving: _isSaving,
+              onSave: _save,
+              onValorChanged: (key, value) =>
+                  setState(() => _valores[key] = value),
+              onSintomaChanged: (key, value) =>
+                  setState(() => _sintomas[key] = value),
+            ),
     );
   }
 }
 
 // ── VISTA YA COMPLETADO ──────────────────────────────────────
 class _CompletadoView extends StatelessWidget {
+  final Map<String, dynamic>? checkin;
+  const _CompletadoView({this.checkin});
+
+  String _emoji(String key, double valor) {
+    final positivos = ['bienestar', 'energia', 'animo'];
+    if (positivos.contains(key)) {
+      if (valor >= 4) return '😊';
+      if (valor >= 3) return '😐';
+      return '😔';
+    } else {
+      if (valor <= 2) return '✅';
+      if (valor <= 3) return '⚠️';
+      return '🔴';
+    }
+  }
+
+  String _label(String key) {
+    const labels = {
+      'bienestar': 'Bienestar',
+      'energia': 'Energía',
+      'animo': 'Ánimo',
+      'acne': 'Acné',
+      'irritabilidad': 'Irritabilidad',
+    };
+    return labels[key] ?? key;
+  }
+
+  String _sintomaLabel(String key) {
+    const labels = {
+      'sangrado_intermenstrual': 'Sangrado intermenstrual',
+      'dolor_cabeza': 'Dolor de cabeza',
+      'nauseas': 'Náuseas',
+      'cambios_peso': 'Cambios de peso',
+    };
+    return labels[key] ?? key;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
+    final valores = Map<String, dynamic>.from(checkin?['valores'] as Map? ?? {});
+    final sintomas = Map<String, dynamic>.from(checkin?['sintomas'] as Map? ?? {});
+    final notas = checkin?['notas'] as String? ?? '';
+    final sintomasActivos = sintomas.entries
+        .where((e) => e.value == true)
+        .toList();
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_circle,
-              size: 80, color: Color(0xFF6B48FF)),
-          const SizedBox(height: 16),
+          // Cabecera
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6B48FF).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.check_circle,
+                    size: 40, color: Color(0xFF6B48FF)),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '¡Check-in completado!',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF6B48FF),
+                        ),
+                      ),
+                      Text(
+                        'Aquí tienes el resumen de esta semana',
+                        style: TextStyle(
+                            color: Colors.grey[600], fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Valores
+          if (valores.isNotEmpty) ...[
+            const Text(
+              'Cómo te has sentido',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF6B48FF),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...valores.entries.map((e) {
+              final valor = (e.value as num).toDouble();
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Text(_emoji(e.key, valor),
+                        style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _label(e.key),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    Row(
+                      children: List.generate(5, (i) {
+                        return Container(
+                          margin: const EdgeInsets.only(left: 3),
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: i < valor.toInt()
+                                ? const Color(0xFF6B48FF)
+                                : const Color(0xFF6B48FF).withOpacity(0.2),
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${valor.toInt()}/5',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6B48FF),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 16),
+          ],
+
+          // Síntomas
           const Text(
-            '¡Ya completaste\nel check-in de esta semana!',
-            textAlign: TextAlign.center,
+            'Síntomas registrados',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
               color: Color(0xFF6B48FF),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Vuelve la semana que viene',
-            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          const SizedBox(height: 12),
+          if (sintomasActivos.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Text('✅', style: TextStyle(fontSize: 20)),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Sin síntomas esta semana',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...sintomasActivos.map((e) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: Colors.orange.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('⚠️', style: TextStyle(fontSize: 16)),
+                      const SizedBox(width: 12),
+                      Text(
+                        _sintomaLabel(e.key),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                )),
+
+          // Notas
+          if (notas.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Text(
+              'Notas',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF6B48FF),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                notas,
+                style: TextStyle(color: Colors.grey[700], fontSize: 14),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_today,
+                    color: Color(0xFF6B48FF), size: 18),
+                const SizedBox(width: 12),
+                Text(
+                  'Vuelve la semana que viene 🙂',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -176,7 +410,6 @@ class _FormView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Encabezado
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -190,18 +423,13 @@ class _FormView extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Tómate un momento para reflexionar sobre cómo te has sentido esta semana.',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.grey[700], fontSize: 13),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-
-          // Sliders
           const _SectionTitle('¿Cómo te has sentido?'),
           const SizedBox(height: 16),
           _SliderItem(
@@ -236,17 +464,13 @@ class _FormView extends StatelessWidget {
             onChanged: (v) => onValorChanged('irritabilidad', v),
             invertedLabel: true,
           ),
-
           const SizedBox(height: 24),
-
-          // Síntomas
           const _SectionTitle('¿Has notado alguno de estos síntomas?'),
           const SizedBox(height: 12),
           _SintomaItem(
             label: 'Sangrado intermenstrual',
             value: sintomas['sangrado_intermenstrual']!,
-            onChanged: (v) =>
-                onSintomaChanged('sangrado_intermenstrual', v),
+            onChanged: (v) => onSintomaChanged('sangrado_intermenstrual', v),
           ),
           _SintomaItem(
             label: 'Dolor de cabeza frecuente',
@@ -263,18 +487,14 @@ class _FormView extends StatelessWidget {
             value: sintomas['cambios_peso']!,
             onChanged: (v) => onSintomaChanged('cambios_peso', v),
           ),
-
           const SizedBox(height: 24),
-
-          // Notas libres
           const _SectionTitle('Notas adicionales'),
           const SizedBox(height: 12),
           TextField(
             controller: notasController,
             maxLines: 4,
             decoration: InputDecoration(
-              hintText:
-                  'Cuéntanos cualquier cosa que quieras que tu sanitario sepa...',
+              hintText: 'Cuéntanos cualquier cosa que quieras que tu sanitario sepa...',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -283,7 +503,6 @@ class _FormView extends StatelessWidget {
               fillColor: Colors.white,
             ),
           ),
-
           const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
@@ -310,7 +529,6 @@ class _FormView extends StatelessWidget {
   }
 }
 
-// ── COMPONENTES ──────────────────────────────────────────────
 class _SectionTitle extends StatelessWidget {
   final String text;
   const _SectionTitle(this.text);
@@ -362,19 +580,16 @@ class _SliderItem extends StatelessWidget {
             children: [
               Text(emoji, style: const TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w500, fontSize: 14),
-              ),
+              Text(label,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 14)),
             ],
           ),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: const Color(0xFF6B48FF),
               thumbColor: const Color(0xFF6B48FF),
-              inactiveTrackColor:
-                  const Color(0xFF6B48FF).withOpacity(0.2),
+              inactiveTrackColor: const Color(0xFF6B48FF).withOpacity(0.2),
               overlayColor: const Color(0xFF6B48FF).withOpacity(0.1),
             ),
             child: Slider(
@@ -389,15 +604,13 @@ class _SliderItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(_leftLabel,
-                  style:
-                      TextStyle(fontSize: 11, color: Colors.grey[500])),
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500])),
               Text(value.toInt().toString(),
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF6B48FF))),
               Text(_rightLabel,
-                  style:
-                      TextStyle(fontSize: 11, color: Colors.grey[500])),
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500])),
             ],
           ),
         ],

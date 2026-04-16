@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'adherence_screen.dart';
+import '../../services/notification_service.dart';
 
 class RemindersScreen extends StatelessWidget {
   const RemindersScreen({super.key});
@@ -238,6 +239,10 @@ class _ReminderCard extends StatelessWidget {
                       .collection('recordatorios')
                       .doc(docId)
                       .update({'activo': value});
+                  if (!value) {
+                    await NotificationService()
+                        .cancelarRecordatorio(docId.hashCode);
+                  }
                 },
                 activeColor: const Color(0xFF6B48FF),
               ),
@@ -263,6 +268,8 @@ class _ReminderCard extends StatelessWidget {
                     ),
                   );
                   if (confirm == true) {
+                    await NotificationService()
+                        .cancelarRecordatorio(docId.hashCode);
                     await FirebaseFirestore.instance
                         .collection('usuarios')
                         .doc(uid)
@@ -271,7 +278,8 @@ class _ReminderCard extends StatelessWidget {
                         .delete();
                   }
                 },
-                child: Icon(Icons.delete_outline, color: Colors.red[300], size: 20),
+                child: Icon(Icons.delete_outline,
+                    color: Colors.red[300], size: 20),
               ),
             ],
           ),
@@ -311,10 +319,14 @@ class _AddReminderFormState extends State<_AddReminderForm> {
   ];
 
   Future<void> _save() async {
-    if (_medicamentoController.text.isEmpty || _dosisController.text.isEmpty) return;
+    if (_medicamentoController.text.isEmpty ||
+        _dosisController.text.isEmpty) return;
     setState(() => _isSaving = true);
 
-    await FirebaseFirestore.instance
+    final horaStr =
+        '${_hora.hour.toString().padLeft(2, '0')}:${_hora.minute.toString().padLeft(2, '0')}';
+
+    final docRef = await FirebaseFirestore.instance
         .collection('usuarios')
         .doc(widget.uid)
         .collection('recordatorios')
@@ -323,12 +335,19 @@ class _AddReminderFormState extends State<_AddReminderForm> {
       'dosis': _dosisController.text.trim(),
       'via': _via,
       'frecuencia': _frecuencia,
-      'hora': '${_hora.hour.toString().padLeft(2, '0')}:${_hora.minute.toString().padLeft(2, '0')}',
+      'hora': horaStr,
       'dias_semana': _diasSemana,
       'dia_mes': _diaMes,
       'activo': true,
       'creado_en': Timestamp.now(),
     });
+
+    await NotificationService().programarRecordatorio(
+      id: docRef.id.hashCode,
+      medicamento: _medicamentoController.text.trim(),
+      dosis: _dosisController.text.trim(),
+      hora: horaStr,
+    );
 
     setState(() => _isSaving = false);
     if (mounted) Navigator.pop(context);
@@ -338,7 +357,9 @@ class _AddReminderFormState extends State<_AddReminderForm> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 24, right: 24, top: 24,
+        left: 24,
+        right: 24,
+        top: 24,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       child: SingleChildScrollView(
@@ -355,95 +376,133 @@ class _AddReminderFormState extends State<_AddReminderForm> {
               ),
             ),
             const SizedBox(height: 20),
-
             TextField(
               controller: _medicamentoController,
               decoration: InputDecoration(
                 labelText: 'Medicamento',
                 hintText: 'Ej: Testosterona Enantato',
                 prefixIcon: const Icon(Icons.medication_outlined),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 filled: true,
                 fillColor: const Color(0xFFF5F0FF),
               ),
             ),
             const SizedBox(height: 12),
-
             TextField(
               controller: _dosisController,
               decoration: InputDecoration(
                 labelText: 'Dosis',
                 hintText: 'Ej: 250mg',
                 prefixIcon: const Icon(Icons.scale_outlined),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 filled: true,
                 fillColor: const Color(0xFFF5F0FF),
               ),
             ),
             const SizedBox(height: 12),
-
             DropdownButtonFormField<String>(
               value: _via,
               decoration: InputDecoration(
                 labelText: 'Vía de administración',
                 prefixIcon: const Icon(Icons.route_outlined),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 filled: true,
                 fillColor: const Color(0xFFF5F0FF),
               ),
-              items: _vias.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
+              items: _vias
+                  .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+                  .toList(),
               onChanged: (v) => setState(() => _via = v!),
             ),
             const SizedBox(height: 12),
-
             DropdownButtonFormField<String>(
               value: _frecuencia,
               decoration: InputDecoration(
                 labelText: 'Frecuencia',
                 prefixIcon: const Icon(Icons.repeat_outlined),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 filled: true,
                 fillColor: const Color(0xFFF5F0FF),
               ),
-              items: _frecuencias.map((f) => DropdownMenuItem(value: f, child: Text(f))).toList(),
+              items: _frecuencias
+                  .map((f) => DropdownMenuItem(value: f, child: Text(f)))
+                  .toList(),
               onChanged: (f) => setState(() {
                 _frecuencia = f!;
                 _diasSemana = [];
               }),
             ),
-
-            // Días de la semana
             if (_frecuencia == 'Semanal' ||
                 _frecuencia == 'Cada 2 semanas' ||
                 _frecuencia == 'Cada 2 días') ...[
               const SizedBox(height: 16),
               const Text(
                 'Días de la semana',
-                style: TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _DayChip(label: 'L', value: 1, selected: _diasSemana.contains(1),
-                      onTap: () => setState(() => _diasSemana.contains(1) ? _diasSemana.remove(1) : _diasSemana.add(1))),
-                  _DayChip(label: 'M', value: 2, selected: _diasSemana.contains(2),
-                      onTap: () => setState(() => _diasSemana.contains(2) ? _diasSemana.remove(2) : _diasSemana.add(2))),
-                  _DayChip(label: 'X', value: 3, selected: _diasSemana.contains(3),
-                      onTap: () => setState(() => _diasSemana.contains(3) ? _diasSemana.remove(3) : _diasSemana.add(3))),
-                  _DayChip(label: 'J', value: 4, selected: _diasSemana.contains(4),
-                      onTap: () => setState(() => _diasSemana.contains(4) ? _diasSemana.remove(4) : _diasSemana.add(4))),
-                  _DayChip(label: 'V', value: 5, selected: _diasSemana.contains(5),
-                      onTap: () => setState(() => _diasSemana.contains(5) ? _diasSemana.remove(5) : _diasSemana.add(5))),
-                  _DayChip(label: 'S', value: 6, selected: _diasSemana.contains(6),
-                      onTap: () => setState(() => _diasSemana.contains(6) ? _diasSemana.remove(6) : _diasSemana.add(6))),
-                  _DayChip(label: 'D', value: 7, selected: _diasSemana.contains(7),
-                      onTap: () => setState(() => _diasSemana.contains(7) ? _diasSemana.remove(7) : _diasSemana.add(7))),
+                  _DayChip(
+                      label: 'L',
+                      value: 1,
+                      selected: _diasSemana.contains(1),
+                      onTap: () => setState(() => _diasSemana.contains(1)
+                          ? _diasSemana.remove(1)
+                          : _diasSemana.add(1))),
+                  _DayChip(
+                      label: 'M',
+                      value: 2,
+                      selected: _diasSemana.contains(2),
+                      onTap: () => setState(() => _diasSemana.contains(2)
+                          ? _diasSemana.remove(2)
+                          : _diasSemana.add(2))),
+                  _DayChip(
+                      label: 'X',
+                      value: 3,
+                      selected: _diasSemana.contains(3),
+                      onTap: () => setState(() => _diasSemana.contains(3)
+                          ? _diasSemana.remove(3)
+                          : _diasSemana.add(3))),
+                  _DayChip(
+                      label: 'J',
+                      value: 4,
+                      selected: _diasSemana.contains(4),
+                      onTap: () => setState(() => _diasSemana.contains(4)
+                          ? _diasSemana.remove(4)
+                          : _diasSemana.add(4))),
+                  _DayChip(
+                      label: 'V',
+                      value: 5,
+                      selected: _diasSemana.contains(5),
+                      onTap: () => setState(() => _diasSemana.contains(5)
+                          ? _diasSemana.remove(5)
+                          : _diasSemana.add(5))),
+                  _DayChip(
+                      label: 'S',
+                      value: 6,
+                      selected: _diasSemana.contains(6),
+                      onTap: () => setState(() => _diasSemana.contains(6)
+                          ? _diasSemana.remove(6)
+                          : _diasSemana.add(6))),
+                  _DayChip(
+                      label: 'D',
+                      value: 7,
+                      selected: _diasSemana.contains(7),
+                      onTap: () => setState(() => _diasSemana.contains(7)
+                          ? _diasSemana.remove(7)
+                          : _diasSemana.add(7))),
                 ],
               ),
             ],
-
-            // Día del mes
             if (_frecuencia == 'Mensual') ...[
               const SizedBox(height: 16),
               Row(
@@ -473,15 +532,16 @@ class _AddReminderFormState extends State<_AddReminderForm> {
                 ],
               ),
             ],
-
             const SizedBox(height: 12),
             GestureDetector(
               onTap: () async {
-                final picked = await showTimePicker(context: context, initialTime: _hora);
+                final picked = await showTimePicker(
+                    context: context, initialTime: _hora);
                 if (picked != null) setState(() => _hora = picked);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F0FF),
                   borderRadius: BorderRadius.circular(12),
@@ -489,7 +549,8 @@ class _AddReminderFormState extends State<_AddReminderForm> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.access_time_outlined, color: Colors.grey),
+                    const Icon(Icons.access_time_outlined,
+                        color: Colors.grey),
                     const SizedBox(width: 12),
                     Text(
                       'Hora: ${_hora.hour.toString().padLeft(2, '0')}:${_hora.minute.toString().padLeft(2, '0')}',
@@ -499,7 +560,6 @@ class _AddReminderFormState extends State<_AddReminderForm> {
                 ),
               ),
             ),
-
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -509,11 +569,13 @@ class _AddReminderFormState extends State<_AddReminderForm> {
                   backgroundColor: const Color(0xFF6B48FF),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: _isSaving
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Guardar recordatorio', style: TextStyle(fontSize: 16)),
+                    : const Text('Guardar recordatorio',
+                        style: TextStyle(fontSize: 16)),
               ),
             ),
           ],

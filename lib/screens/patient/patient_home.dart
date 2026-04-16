@@ -7,6 +7,7 @@ import 'chat_screen.dart';
 import 'checkin_screen.dart';
 import 'reminders_screen.dart';
 import 'red_flags_screen.dart';
+import '../../services/notification_service.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({super.key});
@@ -75,6 +76,7 @@ class _HomeTabState extends State<_HomeTab> {
   String _proximoRecordatorio = '';
   String _proximaHora = '';
   String _planHormonal = '';
+  bool _checkinCompletado = false;
 
   @override
   void initState() {
@@ -82,6 +84,7 @@ class _HomeTabState extends State<_HomeTab> {
     _loadNombre();
     _loadProximoRecordatorio();
     _loadPlanHormonal();
+    _loadCheckinStatus();
   }
 
   Future<void> _loadNombre() async {
@@ -153,6 +156,26 @@ class _HomeTabState extends State<_HomeTab> {
     }
   }
 
+  Future<void> _loadCheckinStatus() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final ahora = DateTime.now();
+    final inicioSemana = ahora.subtract(Duration(days: ahora.weekday - 1));
+    final inicioSemanaDate = DateTime(
+        inicioSemana.year, inicioSemana.month, inicioSemana.day);
+
+    final query = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .collection('checkins')
+        .where('fecha',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(inicioSemanaDate))
+        .get();
+
+    if (mounted) {
+      setState(() => _checkinCompletado = query.docs.isNotEmpty);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -214,9 +237,13 @@ class _HomeTabState extends State<_HomeTab> {
                           builder: (_) => const CheckinScreen()),
                     ),
                     child: _Card(
-                      icon: Icons.check_circle_outline,
+                      icon: _checkinCompletado
+                          ? Icons.check_circle
+                          : Icons.check_circle_outline,
                       title: 'Check-in semanal',
-                      subtitle: 'Pendiente de completar',
+                      subtitle: _checkinCompletado
+                          ? '✅ Completado esta semana'
+                          : 'Pendiente de completar',
                       color: Colors.green,
                     ),
                   ),
@@ -270,6 +297,13 @@ class _AlertResponseBanner extends StatelessWidget {
         final tipo = data['tipo'] ?? '';
 
         if (respuesta.isEmpty) return const SizedBox.shrink();
+
+        // Lanzar notificación local
+        NotificationService().mostrarNotificacion(
+          id: doc.id.hashCode,
+          titulo: '💬 Tu sanitario ha respondido',
+          cuerpo: 'Sobre: $tipo',
+        );
 
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),

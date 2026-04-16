@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const _apiKey = ' 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';
-
 const _systemPrompt = '''
 Eres un asistente de salud especializado en terapia hormonal sustitutiva (THS) para personas transgénero. 
 Tu función es responder dudas frecuentes de forma clara, empática y segura.
@@ -61,12 +59,8 @@ class _ChatScreenState extends State<ChatScreen> {
           .toList();
 
       final response = await http.post(
-        Uri.parse('https://api.anthropic.com/v1/messages'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': _apiKey,
-          'anthropic-version': '2023-06-01',
-        },
+        Uri.parse('https://proxy-apptfg-production.up.railway.app/chat'),
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'model': 'claude-haiku-4-5-20251001',
           'max_tokens': 1024,
@@ -144,7 +138,6 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // Mensajes
           Expanded(
             child: _messages.isEmpty
                 ? _EmptyChat()
@@ -160,8 +153,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                   ),
           ),
-
-          // Input
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -194,6 +185,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     onSubmitted: (_) => _sendMessage(),
                     maxLines: null,
+                    textInputAction: TextInputAction.send,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -223,7 +215,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-// ── BURBUJA DE MENSAJE ───────────────────────────────────────
 class _MessageBubble extends StatelessWidget {
   final _Message message;
   const _MessageBubble({required this.message});
@@ -249,8 +240,7 @@ class _MessageBubble extends StatelessWidget {
             ),
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: isUser ? const Color(0xFF6B48FF) : Colors.white,
                 borderRadius: BorderRadius.only(
@@ -283,7 +273,6 @@ class _MessageBubble extends StatelessWidget {
   }
 }
 
-// ── PANTALLA VACÍA ───────────────────────────────────────────
 class _EmptyChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -331,25 +320,21 @@ class _SuggestionChip extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: GestureDetector(
         onTap: () {
-          final state =
-              context.findAncestorStateOfType<_ChatScreenState>();
+          final state = context.findAncestorStateOfType<_ChatScreenState>();
           state?._messageController.text = text;
           state?._sendMessage();
         },
         child: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFF6B48FF).withOpacity(0.3)),
+            border: Border.all(
+                color: const Color(0xFF6B48FF).withOpacity(0.3)),
           ),
           child: Text(
             text,
-            style: const TextStyle(
-              color: Color(0xFF6B48FF),
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: Color(0xFF6B48FF), fontSize: 13),
           ),
         ),
       ),
@@ -357,7 +342,6 @@ class _SuggestionChip extends StatelessWidget {
   }
 }
 
-// ── INDICADOR DE ESCRITURA ───────────────────────────────────
 class _TypingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -438,7 +422,6 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
   }
 }
 
-// ── MODELO ───────────────────────────────────────────────────
 class _Message {
   final String text;
   final bool isUser;
