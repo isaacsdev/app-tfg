@@ -8,6 +8,7 @@ import 'checkin_screen.dart';
 import 'reminders_screen.dart';
 import 'red_flags_screen.dart';
 import '../../services/notification_service.dart';
+import 'wearables_screen.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({super.key});
@@ -22,6 +23,7 @@ class _PatientHomeState extends State<PatientHome> {
   final List<Widget> _screens = [
     const _HomeTab(),
     const _AnalyticsTab(),
+    const WearablesScreen(),
     const _ChatTab(),
     const _ProfileTab(),
   ];
@@ -56,6 +58,11 @@ class _PatientHomeState extends State<PatientHome> {
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person, color: Color(0xFF6B48FF)),
             label: 'Perfil',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.watch_outlined),
+            selectedIcon: Icon(Icons.watch, color: Color(0xFF6B48FF)),
+            label: 'Wearables',
           ),
         ],
       ),

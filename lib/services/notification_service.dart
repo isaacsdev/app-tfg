@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:flutter/foundation.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -11,15 +12,21 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    if (kIsWeb) return;
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Europe/Madrid'));
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-
     const initSettings = InitializationSettings(android: androidSettings);
-
     await _plugin.initialize(initSettings);
+  }
+
+  Future<void> requestPermissions() async {
+    if (kIsWeb) return;
+    await _plugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
   }
 
   Future<void> programarRecordatorio({
@@ -28,6 +35,7 @@ class NotificationService {
     required String dosis,
     required String hora,
   }) async {
+    if (kIsWeb) return;
     final partes = hora.split(':');
     final horaInt = int.parse(partes[0]);
     final minutoInt = int.parse(partes[1]);
@@ -70,17 +78,12 @@ class NotificationService {
     );
   }
 
-  Future<void> requestPermissions() async {
-    final android = _plugin.resolvePlatformSpecificImplementation
-        AndroidFlutterLocalNotificationsPlugin>();
-    await android?.requestNotificationsPermission();
-  }
-
   Future<void> mostrarNotificacion({
     required int id,
     required String titulo,
     required String cuerpo,
   }) async {
+    if (kIsWeb) return;
     await _plugin.show(
       id,
       titulo,
@@ -101,12 +104,12 @@ class NotificationService {
   }
 
   Future<void> cancelarRecordatorio(int id) async {
+    if (kIsWeb) return;
     await _plugin.cancel(id);
   }
 
   Future<void> cancelarTodos() async {
+    if (kIsWeb) return;
     await _plugin.cancelAll();
   }
-
-
 }
