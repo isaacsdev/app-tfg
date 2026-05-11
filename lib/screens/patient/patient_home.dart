@@ -23,7 +23,7 @@ class _PatientHomeState extends State<PatientHome> {
   final List<Widget> _screens = [
     const _HomeTab(),
     const _AnalyticsTab(),
-    const WearablesScreen(),
+    WearablesScreen(),
     const _ChatTab(),
     const _ProfileTab(),
   ];
@@ -50,6 +50,11 @@ class _PatientHomeState extends State<PatientHome> {
             label: 'Analíticas',
           ),
           NavigationDestination(
+            icon: Icon(Icons.watch_outlined),
+            selectedIcon: Icon(Icons.watch, color: Color(0xFF6B48FF)),
+            label: 'Wearables',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.chat_bubble_outline),
             selectedIcon: Icon(Icons.chat_bubble, color: Color(0xFF6B48FF)),
             label: 'Chat IA',
@@ -58,11 +63,6 @@ class _PatientHomeState extends State<PatientHome> {
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person, color: Color(0xFF6B48FF)),
             label: 'Perfil',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.watch_outlined),
-            selectedIcon: Icon(Icons.watch, color: Color(0xFF6B48FF)),
-            label: 'Wearables',
           ),
         ],
       ),

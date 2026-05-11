@@ -34,7 +34,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
     setState(() => _isSaving = false);
 
     if (mounted){
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const PatientHome()),
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => PatientHome()),
       (route) => false,
       );
     }
