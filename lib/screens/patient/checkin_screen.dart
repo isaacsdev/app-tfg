@@ -186,7 +186,7 @@ class _CompletadoView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFF6B48FF).withOpacity(0.1),
+              color: const Color(0xFF6B48FF).withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -261,7 +261,7 @@ class _CompletadoView extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: i < valor.toInt()
                                 ? const Color(0xFF6B48FF)
-                                : const Color(0xFF6B48FF).withOpacity(0.2),
+                                : const Color(0xFF6B48FF).withValues(alpha:0.2),
                           ),
                         );
                       }),
@@ -316,10 +316,10 @@ class _CompletadoView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: Colors.orange.withOpacity(0.3)),
+                        color: Colors.orange.withValues(alpha:0.3)),
                   ),
                   child: Row(
                     children: [
@@ -413,7 +413,7 @@ class _FormView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF6B48FF).withOpacity(0.1),
+              color: const Color(0xFF6B48FF).withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -589,8 +589,8 @@ class _SliderItem extends StatelessWidget {
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: const Color(0xFF6B48FF),
               thumbColor: const Color(0xFF6B48FF),
-              inactiveTrackColor: const Color(0xFF6B48FF).withOpacity(0.2),
-              overlayColor: const Color(0xFF6B48FF).withOpacity(0.1),
+              inactiveTrackColor: const Color(0xFF6B48FF).withValues(alpha:0.2),
+              overlayColor: const Color(0xFF6B48FF).withValues(alpha:0.1),
             ),
             child: Slider(
               value: value,
@@ -639,7 +639,7 @@ class _SintomaItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: value
-              ? const Color(0xFF6B48FF).withOpacity(0.5)
+              ? const Color(0xFF6B48FF).withValues(alpha:0.5)
               : Colors.transparent,
         ),
       ),

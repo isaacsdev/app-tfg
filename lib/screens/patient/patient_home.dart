@@ -38,7 +38,7 @@ class _PatientHomeState extends State<PatientHome> {
         onDestinationSelected: (index) =>
             setState(() => _currentIndex = index),
         backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFF6B48FF).withOpacity(0.15),
+        indicatorColor: const Color(0xFF6B48FF).withValues(alpha:0.15),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -324,9 +324,9 @@ class _AlertResponseBanner extends StatelessWidget {
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.1),
+            color: Colors.green.withValues(alpha:0.1),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.green.withOpacity(0.4)),
+            border: Border.all(color: Colors.green.withValues(alpha:0.4)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,7 +404,7 @@ class _Card extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -415,7 +415,7 @@ class _Card extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 24),

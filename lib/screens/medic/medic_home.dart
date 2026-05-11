@@ -28,7 +28,7 @@ class _MedicHomeState extends State<MedicHome> {
         onDestinationSelected: (index) =>
             setState(() => _currentIndex = index),
         backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFF2ECC71).withOpacity(0.15),
+        indicatorColor: const Color(0xFF2ECC71).withValues(alpha:0.15),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.people_outline),
@@ -161,7 +161,7 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? const Color(0xFF2ECC71)
-              : const Color(0xFF2ECC71).withOpacity(0.1),
+              : const Color(0xFF2ECC71).withValues(alpha:0.1),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -338,11 +338,11 @@ class _PatientCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: tieneAlertas
-            ? Border.all(color: Colors.red.withOpacity(0.4), width: 2)
+            ? Border.all(color: Colors.red.withValues(alpha:0.4), width: 2)
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -353,7 +353,7 @@ class _PatientCard extends StatelessWidget {
         leading: Stack(
           children: [
             CircleAvatar(
-              backgroundColor: const Color(0xFF2ECC71).withOpacity(0.1),
+              backgroundColor: const Color(0xFF2ECC71).withValues(alpha:0.1),
               radius: 28,
               child: Text(
                 nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
@@ -546,8 +546,8 @@ class _PatientAnalytics extends StatelessWidget {
                                 horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: validada
-                                  ? Colors.green.withOpacity(0.1)
-                                  : Colors.orange.withOpacity(0.1),
+                                  ? Colors.green.withValues(alpha:0.1)
+                                  : Colors.orange.withValues(alpha:0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -581,7 +581,7 @@ class _PatientAnalytics extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF2ECC71).withOpacity(0.1),
+                                  color: const Color(0xFF2ECC71).withValues(alpha:0.1),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: const Text('Validar',
@@ -605,7 +605,7 @@ class _PatientAnalytics extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha:0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text('${e.key}: ${e.value}',
@@ -620,10 +620,10 @@ class _PatientAnalytics extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2ECC71).withOpacity(0.1),
+                          color: const Color(0xFF2ECC71).withValues(alpha:0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                              color: const Color(0xFF2ECC71).withOpacity(0.3)),
+                              color: const Color(0xFF2ECC71).withValues(alpha:0.3)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -708,7 +708,7 @@ class _PatientCheckins extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2ECC71).withOpacity(0.1),
+                          color: const Color(0xFF2ECC71).withValues(alpha:0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text('${e.key}: $valor/5',
@@ -822,8 +822,8 @@ class _PatientAlerts extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: vistaPor
-                      ? Colors.grey.withOpacity(0.2)
-                      : color.withOpacity(0.4),
+                      ? Colors.grey.withValues(alpha:0.2)
+                      : color.withValues(alpha:0.4),
                   width: vistaPor ? 1 : 2,
                 ),
               ),
@@ -851,7 +851,7 @@ class _PatientAlerts extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
+                          color: color.withValues(alpha:0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(severidad,
@@ -873,10 +873,10 @@ class _PatientAlerts extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2ECC71).withOpacity(0.08),
+                        color: const Color(0xFF2ECC71).withValues(alpha:0.08),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                            color: const Color(0xFF2ECC71).withOpacity(0.3)),
+                            color: const Color(0xFF2ECC71).withValues(alpha:0.3)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

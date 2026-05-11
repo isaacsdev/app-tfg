@@ -51,7 +51,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final history = _messages
-          .where((m) => !m.isLoading)
           .map((m) => {
                 'role': m.isUser ? 'user' : 'assistant',
                 'content': m.text,
@@ -159,7 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha:0.1),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -251,7 +250,7 @@ class _MessageBubble extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha:0.1),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -330,7 +329,8 @@ class _SuggestionChip extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-                color: const Color(0xFF6B48FF).withOpacity(0.3)),
+                color: const Color(0xFF6B48FF).withValues(alpha: 0.1),
+          ),
           ),
           child: Text(
             text,
@@ -425,11 +425,9 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
 class _Message {
   final String text;
   final bool isUser;
-  final bool isLoading;
 
   const _Message({
     required this.text,
     required this.isUser,
-    this.isLoading = false,
   });
 }

@@ -197,7 +197,7 @@ class _AdherenceCardState extends State<_AdherenceCard> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -214,7 +214,7 @@ class _AdherenceCardState extends State<_AdherenceCard> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6B48FF).withOpacity(0.1),
+                    color: const Color(0xFF6B48FF).withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.medication,
@@ -270,7 +270,7 @@ class _AdherenceCardState extends State<_AdherenceCard> {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: porcentaje / 100,
-                backgroundColor: Colors.grey.withOpacity(0.1),
+                backgroundColor: Colors.grey.withValues(alpha:0.1),
                 valueColor:
                     AlwaysStoppedAnimation<Color>(colorPorcentaje),
                 minHeight: 6,
@@ -352,13 +352,13 @@ class _AdherenceCardState extends State<_AdherenceCard> {
                       height: 32,
                       decoration: BoxDecoration(
                         color: tomado
-                            ? Colors.green.withOpacity(0.2)
-                            : Colors.red.withOpacity(0.2),
+                            ? Colors.green.withValues(alpha:0.2)
+                            : Colors.red.withValues(alpha:0.2),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
                           color: tomado
-                              ? Colors.green.withOpacity(0.5)
-                              : Colors.red.withOpacity(0.5),
+                              ? Colors.green.withValues(alpha:0.5)
+                              : Colors.red.withValues(alpha:0.5),
                         ),
                       ),
                       child: Center(
@@ -405,10 +405,10 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? color.withOpacity(0.15) : Colors.grey.withOpacity(0.05),
+          color: selected ? color.withValues(alpha:0.15) : Colors.grey.withValues(alpha:0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected ? color : Colors.grey.withOpacity(0.2),
+            color: selected ? color : Colors.grey.withValues(alpha:0.2),
             width: selected ? 2 : 1,
           ),
         ),

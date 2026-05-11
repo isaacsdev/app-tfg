@@ -158,7 +158,7 @@ class _AnalyticCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -183,8 +183,8 @@ class _AnalyticCard extends StatelessWidget {
                     horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: validada
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.orange.withOpacity(0.1),
+                      ? Colors.green.withValues(alpha:0.1)
+                      : Colors.orange.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -216,13 +216,13 @@ class _AnalyticCard extends StatelessWidget {
                       horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: enRango
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.red.withOpacity(0.1),
+                        ? Colors.green.withValues(alpha:0.1)
+                        : Colors.red.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: enRango
-                          ? Colors.green.withOpacity(0.3)
-                          : Colors.red.withOpacity(0.3),
+                          ? Colors.green.withValues(alpha:0.3)
+                          : Colors.red.withValues(alpha:0.3),
                     ),
                   ),
                   child: Row(
@@ -255,10 +255,10 @@ class _AnalyticCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF6B48FF).withOpacity(0.08),
+                color: const Color(0xFF6B48FF).withValues(alpha:0.08),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                    color: const Color(0xFF6B48FF).withOpacity(0.3)),
+                    color: const Color(0xFF6B48FF).withValues(alpha:0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -445,8 +445,8 @@ class _AddAnalyticFormState extends State<_AddAnalyticForm> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: _pdfBase64 != null
-                      ? const Color(0xFF6B48FF).withOpacity(0.1)
-                      : Colors.grey.withOpacity(0.05),
+                      ? const Color(0xFF6B48FF).withValues(alpha:0.1)
+                      : Colors.grey.withValues(alpha:0.05),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _pdfBase64 != null

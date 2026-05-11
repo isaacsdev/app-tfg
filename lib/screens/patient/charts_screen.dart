@@ -108,7 +108,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                  color: const Color(0xFF6B48FF).withOpacity(0.3)),
+                  color: const Color(0xFF6B48FF).withValues(alpha:0.3)),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -187,7 +187,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black
-                                          .withOpacity(0.05),
+                                          .withValues(alpha:0.05),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -212,7 +212,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
                                     label: 'Valor'),
                                 const SizedBox(width: 16),
                                 _LegendItem(
-                                    color: Colors.green.withOpacity(0.5),
+                                    color: Colors.green.withValues(alpha:0.5),
                                     label: 'Rango normal'),
                               ],
                             ),
@@ -257,7 +257,7 @@ class _ResumenCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -368,7 +368,7 @@ class _LineChart extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: (maxVal - minVal) / 4,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha:0.2),
             strokeWidth: 1,
           ),
         ),
@@ -417,7 +417,7 @@ class _LineChart extends StatelessWidget {
             HorizontalRangeAnnotation(
               y1: rango[0].clamp(minVal, maxVal),
               y2: rango[1].clamp(minVal, maxVal),
-              color: Colors.green.withOpacity(0.1),
+              color: Colors.green.withValues(alpha:0.1),
             ),
           ],
         ),
@@ -445,7 +445,7 @@ class _LineChart extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: const Color(0xFF6B48FF).withOpacity(0.08),
+              color: const Color(0xFF6B48FF).withValues(alpha:0.08),
             ),
           ),
         ],

@@ -134,10 +134,10 @@ class _HormonePlanScreenState extends State<HormonePlanScreen> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2ECC71).withOpacity(0.1),
+                        color: const Color(0xFF2ECC71).withValues(alpha:0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: const Color(0xFF2ECC71).withOpacity(0.3)),
+                            color: const Color(0xFF2ECC71).withValues(alpha:0.3)),
                       ),
                       child: Row(
                         children: [

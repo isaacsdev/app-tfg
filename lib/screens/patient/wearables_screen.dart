@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:health/health.dart';
+import 'package:flutter/foundation.dart';
 
 class WearablesScreen extends StatefulWidget {
   const WearablesScreen({super.key});
@@ -34,8 +35,12 @@ class _WearablesScreenState extends State<WearablesScreen> {
     _solicitarPermisos();
   }
 
-  Future<void> _solicitarPermisos() async {
-    try {
+ Future<void> _solicitarPermisos() async {
+  if (kIsWeb) {
+    setState(() => _permisosOk = false);
+    return;
+  }
+  try {
       final disponible = await _health.isHealthConnectAvailable();
       if (!disponible) {
         await _health.installHealthConnect();
@@ -142,7 +147,7 @@ class _WearablesScreenState extends State<WearablesScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6B48FF).withOpacity(0.1),
+                          color: const Color(0xFF6B48FF).withValues(alpha:0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -261,9 +266,10 @@ class _PermisosDenegados extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: Colors.orange.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                border: Border.all(color: Colors.orange.withValues(alpha:0.1),
+              ),
               ),
               child: Column(
                 children: [
@@ -364,7 +370,7 @@ class _DatoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -375,7 +381,7 @@ class _DatoCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icono, color: color, size: 24),

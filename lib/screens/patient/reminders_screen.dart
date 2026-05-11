@@ -157,12 +157,12 @@ class _ReminderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: activo
-              ? const Color(0xFF6B48FF).withOpacity(0.3)
-              : Colors.grey.withOpacity(0.2),
+              ? const Color(0xFF6B48FF).withValues(alpha:0.3)
+              : Colors.grey.withValues(alpha:0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -174,8 +174,8 @@ class _ReminderCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: activo
-                  ? const Color(0xFF6B48FF).withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.1),
+                  ? const Color(0xFF6B48FF).withValues(alpha:0.1)
+                  : Colors.grey.withValues(alpha:0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -609,7 +609,7 @@ class _DayChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? const Color(0xFF6B48FF)
-              : const Color(0xFF6B48FF).withOpacity(0.1),
+              : const Color(0xFF6B48FF).withValues(alpha:0.1),
           shape: BoxShape.circle,
         ),
         child: Center(

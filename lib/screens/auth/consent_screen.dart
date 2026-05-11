@@ -68,7 +68,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6B48FF).withOpacity(0.1),
+                      color: const Color(0xFF6B48FF).withValues(alpha:0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -146,8 +146,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _aceptado
-                            ? const Color(0xFF6B48FF).withOpacity(0.5)
-                            : Colors.grey.withOpacity(0.3),
+                            ? const Color(0xFF6B48FF).withValues(alpha:0.5)
+                            : Colors.grey.withValues(alpha:0.3),
                         width: _aceptado ? 2 : 1,
                       ),
                     ),
@@ -193,7 +193,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha:0.05),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -212,7 +212,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  disabledBackgroundColor: Colors.grey.withOpacity(0.3),
+                  disabledBackgroundColor: Colors.grey.withValues(alpha:0.3),
                 ),
                 child: _isSaving
                     ? const SizedBox(
