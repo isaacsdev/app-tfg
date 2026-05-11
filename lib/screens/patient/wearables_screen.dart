@@ -35,10 +35,19 @@ class _WearablesScreenState extends State<WearablesScreen> {
   }
 
   Future<void> _solicitarPermisos() async {
-    final permisos = _tipos.map((_) => HealthDataAccess.READ).toList();
-    final ok = await _health.requestAuthorization(_tipos, permissions: permisos);
-    setState(() => _permisosOk = ok);
-    if (ok) _sincronizar();
+    try {
+      final disponible = await _health.isHealthConnectAvailable();
+      if (!disponible) {
+        await _health.installHealthConnect();
+        return;
+      }
+      final permisos = _tipos.map((_) => HealthDataAccess.READ).toList();
+      final ok = await _health.requestAuthorization(_tipos, permissions: permisos);
+      setState(() => _permisosOk = ok);
+      if (ok) _sincronizar();
+    } catch (e) {
+      await _health.installHealthConnect();
+    }
   }
 
   Future<void> _sincronizar() async {
@@ -237,28 +246,63 @@ class _PermisosDenegados extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.watch_off_outlined,
-                size: 64, color: Colors.grey),
+            const Icon(Icons.watch_off_outlined, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             const Text(
-              'Permisos necesarios',
+              'Health Connect no disponible',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF6B48FF),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Para ver tus datos de salud necesitamos acceso a Health Connect.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Esta función requiere Android 14 o superior con Google Health Connect instalado.',
+                          style: TextStyle(color: Colors.orange[800], fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Health Connect permite sincronizar datos de salud desde tu wearable (smartwatch, pulsera de actividad, tensiómetro inteligente) directamente con AppTrans.',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13, height: 1.5),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Datos que podrás sincronizar:',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF6B48FF)),
+            ),
+            const SizedBox(height: 12),
+            _CompatibilidadItem(icono: Icons.directions_walk, texto: 'Pasos diarios'),
+            _CompatibilidadItem(icono: Icons.favorite, texto: 'Frecuencia cardíaca'),
+            _CompatibilidadItem(icono: Icons.monitor_weight_outlined, texto: 'Peso corporal'),
+            _CompatibilidadItem(icono: Icons.air, texto: 'Saturación de oxígeno (SpO2)'),
+            _CompatibilidadItem(icono: Icons.water_drop_outlined, texto: 'Glucosa en sangre'),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.health_and_safety_outlined),
-              label: const Text('Conceder permisos'),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Reintentar'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF6B48FF),
                 foregroundColor: Colors.white,
@@ -268,6 +312,27 @@ class _PermisosDenegados extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _CompatibilidadItem extends StatelessWidget {
+  final IconData icono;
+  final String texto;
+
+  const _CompatibilidadItem({required this.icono, required this.texto});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icono, color: const Color(0xFF6B48FF), size: 18),
+          const SizedBox(width: 12),
+          Text(texto, style: const TextStyle(fontSize: 14)),
+        ],
       ),
     );
   }

@@ -9,6 +9,7 @@ import 'reminders_screen.dart';
 import 'red_flags_screen.dart';
 import '../../services/notification_service.dart';
 import 'wearables_screen.dart';
+import 'hormone_plan_patient_screen.dart';
 
 class PatientHome extends StatefulWidget {
   const PatientHome({super.key});
@@ -212,7 +213,13 @@ class _HomeTabState extends State<_HomeTab> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _Card(
+                  GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => HormonePlanPatientScreen()),
+                  ),
+                  child: _Card(
                     icon: Icons.medication_outlined,
                     title: 'Plan hormonal',
                     subtitle: _planHormonal.isNotEmpty
@@ -220,6 +227,7 @@ class _HomeTabState extends State<_HomeTab> {
                         : 'Sin pauta asignada aún',
                     color: const Color(0xFF6B48FF),
                   ),
+                ),
                   const SizedBox(height: 16),
                   GestureDetector(
                     onTap: () => Navigator.push(
