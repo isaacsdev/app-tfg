@@ -281,7 +281,7 @@ class _PermisosDenegados extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Health Connect permite sincronizar datos de salud desde tu wearable (smartwatch, pulsera de actividad, tensiómetro inteligente) directamente con AppTrans.',
+                    'Health Connect permite sincronizar datos de salud desde tu wearable (smartwatch, pulsera de actividad, tensiómetro inteligente) directamente con MEtanoia.',
                     style: TextStyle(color: Colors.grey[600], fontSize: 13, height: 1.5),
                   ),
                 ],

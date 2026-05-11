@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const Icon(Icons.favorite, size: 48, color: Color(0xFF6B48FF)),
               const SizedBox(height: 8),
               const Text(
-                'Bienvenido/a a AppTrans',
+                'Bienvenido/a a MEtanoia',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,

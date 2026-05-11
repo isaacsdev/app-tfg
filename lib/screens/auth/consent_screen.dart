@@ -102,9 +102,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   const SizedBox(height: 24),
 
                   _SeccionConsentimiento(
-                    titulo: '1. ¿Qué es AppTrans?',
+                    titulo: '1. ¿Qué es MEtanoia?',
                     contenido:
-                        'AppTrans es una aplicación de telemonitorización diseñada para apoyar el seguimiento de la terapia hormonal sustitutiva (THS) en personas transgénero. Su objetivo es facilitar la comunicación entre paciente y profesional sanitario, y NO sustituye en ningún caso la atención médica profesional.',
+                        'MEtanoia es una aplicación de telemonitorización diseñada para apoyar el seguimiento de la terapia hormonal sustitutiva (THS) en personas transgénero. Su objetivo es facilitar la comunicación entre paciente y profesional sanitario, y NO sustituye en ningún caso la atención médica profesional.',
                   ),
                   _SeccionConsentimiento(
                     titulo: '2. Datos que recopilamos',
@@ -134,7 +134,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   _SeccionConsentimiento(
                     titulo: '7. Asistente de IA',
                     contenido:
-                        'AppTrans incluye un asistente de inteligencia artificial para responder dudas frecuentes sobre la THS. Este asistente NO puede ajustar dosis, interpretar resultados clínicos individuales ni sustituir la consulta médica. En situaciones de emergencia, siempre llama al 112.',
+                        'MEtanoia incluye un asistente de inteligencia artificial para responder dudas frecuentes sobre la THS. Este asistente NO puede ajustar dosis, interpretar resultados clínicos individuales ni sustituir la consulta médica. En situaciones de emergencia, siempre llama al 112.',
                   ),
                   const SizedBox(height: 24),
 

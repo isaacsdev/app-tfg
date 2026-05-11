@@ -16,18 +16,18 @@ void main() async {
   );
   await NotificationService().init();
   await NotificationService().requestPermissions();
-  runApp(const AppTrans());
+  runApp(const MEtanoia());
 }
 
 
 
-class AppTrans extends StatelessWidget {
-  const AppTrans({super.key});
+class MEtanoia extends StatelessWidget {
+  const MEtanoia({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AppTrans',
+      title: 'MEtanoia',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -238,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
               const Icon(Icons.favorite, size: 64, color: Color(0xFF6B48FF)),
               const SizedBox(height: 16),
               const Text(
-                'AppTrans',
+                'MEtanoia',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 32,
